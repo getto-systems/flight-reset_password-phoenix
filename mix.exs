@@ -9,7 +9,8 @@ defmodule FlightResetPassword.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      escript: escript()
     ]
   end
 
@@ -39,5 +40,9 @@ defmodule FlightResetPassword.Mixfile do
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.3"}
     ]
+  end
+
+  defp escript do
+    [main_module: FlightResetPassword.CLI, path: "_build/escript/flight_reset_password"]
   end
 end
