@@ -15,6 +15,6 @@ defmodule FlightResetPassword.Email do
   end
 
   defp url(token) do
-    "#{System.get_env("LOGIN_URL")}?token=#{token |> URI.encode}"
+    "#{System.get_env("LOGIN_URL")}?token=#{token |> String.replace("=","") |> URI.encode}"
   end
 end
