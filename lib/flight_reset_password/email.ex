@@ -10,7 +10,7 @@ defmodule FlightResetPassword.Email do
     |> text_body(
       System.get_env("EMAIL_BODY")
       |> String.replace("\\n","\n")
-      |> String.replace("#URL#", token |> url)
+      |> String.replace("<%= URL %>", token |> url)
     )
   end
 
