@@ -3,14 +3,16 @@ defmodule FlightResetPassword.CLI do
     {_opts, args, _} = OptionParser.parse(arguments)
 
     data = parse_data("FLIGHT_DATA")
+    smtp = parse_data("SMTP")
+    content = parse_data("EMAIL")
     #credential = parse_data("FLIGHT_CREDENTIAL")
 
     Application.put_env(:flight_reset_password, FlightResetPassword.Mailer,
       adapter: Bamboo.SMTPAdapter,
-      server: System.get_env("SMTP_SERVER"),
-      port: System.get_env("SMTP_PORT"),
-      username: System.get_env("SMTP_USER"),
-      password: System.get_env("SMTP_PASSWORD"),
+      server: smtp["server"],
+      port: smtp["port"],
+      username: smtp["user"],
+      password: smtp["password"],
       tls: :if_available, # can be `:always` or `:never`
       ssl: false, # can be `true`
       retries: 1
@@ -23,7 +25,7 @@ defmodule FlightResetPassword.CLI do
           {"",_}  -> "no email" |> puts_result(104)
           {_,""}  -> "no token" |> puts_result(104)
           {email,token}  ->
-            FlightResetPassword.Email.reset_password_text_email(email,token)
+            FlightResetPassword.Email.reset_password_text_email(email,token,content)
             |> FlightResetPassword.Mailer.deliver_now
             %{"message" => "ok"} |> puts_result
         end
