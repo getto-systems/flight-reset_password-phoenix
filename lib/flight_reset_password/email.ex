@@ -14,6 +14,6 @@ defmodule FlightResetPassword.Email do
   end
 
   defp url(token,content) do
-    "#{content["LOGIN_URL"]}?token=#{token |> String.replace("=","") |> URI.encode}"
+    "#{content["login_url"]}?token=#{token |> String.replace("=","") |> URI.encode}"
   end
 end

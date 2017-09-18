@@ -3,10 +3,17 @@ defmodule FlightResetPassword.CLI do
     {_opts, args, _} = OptionParser.parse(arguments)
 
     data = parse_data("FLIGHT_DATA")
+    #credential = parse_data("FLIGHT_CREDENTIAL")
     smtp = parse_data("SMTP")
     content = parse_data("EMAIL")
-    #credential = parse_data("FLIGHT_CREDENTIAL")
 
+    case args do
+      ["send-email" | _] -> send_email(data,smtp,content)
+      _ -> "unknown command: #{arguments |> inspect}" |> puts_error
+    end
+  end
+
+  defp send_email(data,smtp,content) do
     Application.put_env(:flight_reset_password, FlightResetPassword.Mailer,
       adapter: Bamboo.SMTPAdapter,
       server: smtp["server"],
@@ -18,23 +25,23 @@ defmodule FlightResetPassword.CLI do
       retries: 1
     )
 
-    case args do
-      ["send-email" | _] ->
-        case {data["email"] || "",data["token"] || ""} do
-          {"",""} -> "no email and token" |> puts_result(104)
-          {"",_}  -> "no email" |> puts_result(104)
-          {_,""}  -> "no token" |> puts_result(104)
-          {email,token}  ->
-            FlightResetPassword.Email.reset_password_text_email(email,token,content)
-            |> FlightResetPassword.Mailer.deliver_now
-            %{"message" => "ok"} |> puts_result
-        end
-      _ -> "unknown command: #{arguments |> inspect}" |> puts_error
+    case {data["email"] || "",data["token"] || ""} do
+      {"",""} -> "no email and token" |> puts_result(104)
+      {"",_}  -> "no email" |> puts_result(104)
+      {_,""}  -> "no token" |> puts_result(104)
+      {email,token}  ->
+        FlightResetPassword.Email.reset_password_text_email(email,token,content)
+        |> FlightResetPassword.Mailer.deliver_now
+        %{"message" => "ok"} |> puts_result
     end
   end
 
   defp parse_data(key) do
     System.get_env(key)
+    |> parse_json
+  end
+  defp parse_json(json) do
+    json
     |> case do
       nil -> %{}
       raw ->
